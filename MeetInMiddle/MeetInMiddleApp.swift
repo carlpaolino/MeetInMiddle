@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct MeetInMiddleApp: App {
+    @StateObject private var appViewModel = AppViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView(appViewModel: appViewModel)
         }
     }
 }
