@@ -18,6 +18,7 @@ struct LocationPickerView: View {
     @State private var selectedOption: LocationOption = .currentLocation
     @State private var addressQuery = ""
     @State private var isRequestingLocation = false
+    @StateObject private var completer = AddressCompleter()
     
     enum LocationOption: String, CaseIterable {
         case currentLocation = "Current Location"
@@ -57,6 +58,9 @@ struct LocationPickerView: View {
                         TextField("Address", text: $addressQuery)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .onChange(of: addressQuery) { oldValue, newValue in
+                                completer.search(query: newValue)
+                            }
                         
                         Button(action: {
                             if !addressQuery.isEmpty {
@@ -70,6 +74,39 @@ struct LocationPickerView: View {
                         }
                         .disabled(addressQuery.isEmpty)
                     }
+                    
+                    // Show autocomplete suggestions in separate section
+                    if !completer.suggestions.isEmpty && !addressQuery.isEmpty {
+                        Section("Suggestions") {
+                            ForEach(completer.suggestions, id: \.id) { suggestion in
+                                Button(action: {
+                                    selectSuggestion(suggestion)
+                                }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "mappin.circle.fill")
+                                            .foregroundColor(.accentColor)
+                                            .font(.title3)
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(suggestion.title)
+                                                .foregroundColor(.primary)
+                                                .font(.body)
+                                                .multilineTextAlignment(.leading)
+                                            if !suggestion.subtitle.isEmpty {
+                                                Text(suggestion.subtitle)
+                                                    .foregroundColor(.secondary)
+                                                    .font(.caption)
+                                                    .multilineTextAlignment(.leading)
+                                            }
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                    }
                 }
             }
             .navigationTitle("Set Location for \(participant.name)")
@@ -82,6 +119,11 @@ struct LocationPickerView: View {
                 }
             }
         }
+    }
+    
+    private func selectSuggestion(_ suggestion: AddressSuggestion) {
+        addressQuery = suggestion.fullAddress
+        completer.clearSuggestions()
     }
     
     private func requestCurrentLocation() {
@@ -107,6 +149,56 @@ struct LocationPickerView: View {
     }
 }
 
+// MARK: - Address Autocomplete
+class AddressCompleter: NSObject, ObservableObject {
+    private let completer = MKLocalSearchCompleter()
+    @Published var suggestions: [AddressSuggestion] = []
+    
+    override init() {
+        super.init()
+        completer.delegate = self
+        completer.resultTypes = [.address, .pointOfInterest]
+        completer.filterType = .locationsAndQueries
+    }
+    
+    func search(query: String) {
+        guard !query.isEmpty else {
+            suggestions = []
+            return
+        }
+        
+        completer.queryFragment = query
+    }
+    
+    func clearSuggestions() {
+        suggestions = []
+    }
+}
+
+extension AddressCompleter: MKLocalSearchCompleterDelegate {
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        suggestions = completer.results.prefix(5).enumerated().map { index, result in
+            AddressSuggestion(
+                id: "\(result.title)-\(result.subtitle)-\(index)",
+                title: result.title,
+                subtitle: result.subtitle,
+                fullAddress: "\(result.title)\(result.subtitle.isEmpty ? "" : ", \(result.subtitle)")"
+            )
+        }
+    }
+    
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        print("Address completer error: \(error.localizedDescription)")
+    }
+}
+
+struct AddressSuggestion: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let fullAddress: String
+}
+
 #Preview {
     LocationPickerView(
         participant: Participant(name: "John"),
@@ -114,4 +206,3 @@ struct LocationPickerView: View {
         onSelect: { _ in }
     )
 }
-

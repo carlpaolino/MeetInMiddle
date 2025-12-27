@@ -17,9 +17,12 @@ class NewMeetViewModel: ObservableObject {
     @Published var placeCategory: PlaceCategory = .restaurant
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var includeUser: Bool = false
     
     @Published var resolvedCoordinates: [UUID: CLLocationCoordinate2D] = [:]
     @Published var isResolvingLocations: Bool = false
+    
+    private var userParticipantId: UUID?
     
     let locationManager: LocationManager
     
@@ -33,8 +36,41 @@ class NewMeetViewModel: ObservableObject {
     }
     
     func removeParticipant(_ participant: Participant) {
+        // Don't allow removing the user participant directly
+        if participant.id == userParticipantId {
+            toggleIncludeUser()
+            return
+        }
         participants.removeAll { $0.id == participant.id }
         resolvedCoordinates.removeValue(forKey: participant.id)
+    }
+    
+    func toggleIncludeUser() {
+        includeUser.toggle()
+        
+        if includeUser {
+            // Add user as participant with current location
+            let userParticipant = Participant(name: "You", start: .currentLocation)
+            userParticipantId = userParticipant.id
+            participants.insert(userParticipant, at: 0)
+            
+            // Automatically resolve user's location
+            Task {
+                do {
+                    let coordinate = try await locationManager.getCurrentLocation()
+                    resolvedCoordinates[userParticipant.id] = coordinate
+                } catch {
+                    // Location will be resolved later in resolveAllLocations
+                }
+            }
+        } else {
+            // Remove user participant
+            if let userId = userParticipantId {
+                participants.removeAll { $0.id == userId }
+                resolvedCoordinates.removeValue(forKey: userId)
+                userParticipantId = nil
+            }
+        }
     }
     
     func setParticipantStart(_ participant: Participant, start: StartPoint) {
@@ -75,8 +111,13 @@ class NewMeetViewModel: ObservableObject {
     }
     
     func canProceed() -> Bool {
-        guard !title.isEmpty,
-              participants.count >= 2,
+        guard !title.isEmpty else {
+            return false
+        }
+        
+        // Need at least 2 participants total (either 2 others, or user + 1 other)
+        let minParticipants = includeUser ? 1 : 2
+        guard participants.count >= minParticipants,
               participants.count <= 8 else {
             return false
         }

@@ -38,6 +38,14 @@ class RoutingService {
         switch mode {
         case .drive:
             request.transportType = .automobile
+        case .flight:
+            // MapKit doesn't support flight routing, use automobile as fallback
+            request.transportType = .automobile
+        case .bike:
+            // MapKit doesn't have bike routing, use walking as approximation
+            request.transportType = .walking
+        case .bus:
+            request.transportType = .transit
         }
         
         let directions = MKDirections(request: request)
