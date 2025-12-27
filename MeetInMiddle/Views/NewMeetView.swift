@@ -11,7 +11,6 @@ import CoreLocation
 struct NewMeetView: View {
     @ObservedObject var appViewModel: AppViewModel
     @StateObject private var viewModel: NewMeetViewModel
-    @Environment(\.dismiss) var dismiss
     
     @State private var newParticipantName = ""
     @State private var showingLocationPicker: Participant?
@@ -88,14 +87,7 @@ struct NewMeetView: View {
                 }
             }
             .navigationTitle("New Meet")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
+            .navigationBarTitleDisplayMode(.large)
             .sheet(item: $showingLocationPicker) { participant in
                 LocationPickerView(
                     participant: participant,

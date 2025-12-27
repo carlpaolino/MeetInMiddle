@@ -12,7 +12,6 @@ import CoreLocation
 struct ActivityFinderView: View {
     @ObservedObject var appViewModel: AppViewModel
     @StateObject private var viewModel: ActivityFinderViewModel
-    @Environment(\.dismiss) var dismiss
     
     init(appViewModel: AppViewModel) {
         self.appViewModel = appViewModel
@@ -74,14 +73,7 @@ struct ActivityFinderView: View {
                 }
             }
             .navigationTitle("Find Activities")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
+            .navigationBarTitleDisplayMode(.large)
             .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
                 Button("OK") {
                     viewModel.errorMessage = nil

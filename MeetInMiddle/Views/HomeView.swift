@@ -22,7 +22,7 @@ struct HomeView: View {
                     .font(.system(size: 80))
                     .foregroundColor(.blue)
                 
-                Text("MeetHalfway")
+                Text("Meet Me In The Middle")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
@@ -82,7 +82,7 @@ struct HomeView: View {
                 
                 Spacer()
             }
-            .navigationTitle("MeetHalfway")
+            .navigationTitle("Meet Me In The Middle")
             .sheet(isPresented: $showingNewMeet) {
                 NewMeetView(appViewModel: appViewModel)
             }

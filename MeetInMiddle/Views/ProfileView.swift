@@ -10,7 +10,6 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject var appViewModel: AppViewModel
     @StateObject private var viewModel: ProfileViewModel
-    @Environment(\.dismiss) var dismiss
     
     init(appViewModel: AppViewModel) {
         self.appViewModel = appViewModel
@@ -142,19 +141,24 @@ struct ProfileView: View {
                 }
             }
             .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        viewModel.save()
-                        dismiss()
-                    }
-                }
+            .navigationBarTitleDisplayMode(.large)
+            .onChange(of: viewModel.displayName) { _ in
+                viewModel.save()
+            }
+            .onChange(of: viewModel.foodTypes) { _ in
+                viewModel.save()
+            }
+            .onChange(of: viewModel.activityTypes) { _ in
+                viewModel.save()
+            }
+            .onChange(of: viewModel.budget) { _ in
+                viewModel.save()
+            }
+            .onChange(of: viewModel.vibe) { _ in
+                viewModel.save()
+            }
+            .onChange(of: viewModel.accessibilityNeeds) { _ in
+                viewModel.save()
             }
         }
     }

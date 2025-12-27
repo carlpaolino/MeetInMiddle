@@ -1,4 +1,4 @@
-# MeetHalfway - iOS App
+# Meet Me In The Middle - iOS App
 
 An iOS app that helps groups meet in the middle by computing fair travel times and recommending high-rated venues/activities that match each person's profile.
 

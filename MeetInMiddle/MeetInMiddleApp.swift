@@ -13,7 +13,7 @@ struct MeetInMiddleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            HomeView(appViewModel: appViewModel)
+            MainTabView(appViewModel: appViewModel)
         }
     }
 }
