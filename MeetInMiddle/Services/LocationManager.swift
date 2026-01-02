@@ -18,11 +18,23 @@ class LocationManager: NSObject, ObservableObject {
     override init() {
         super.init()
         manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
         authorizationStatus = manager.authorizationStatus
     }
     
     func requestLocationPermission() {
         manager.requestWhenInUseAuthorization()
+    }
+    
+    func startUpdatingLocation() {
+        guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
+            return
+        }
+        manager.startUpdatingLocation()
+    }
+    
+    func stopUpdatingLocation() {
+        manager.stopUpdatingLocation()
     }
     
     func getCurrentLocation() async throws -> CLLocationCoordinate2D {
@@ -58,7 +70,7 @@ extension LocationManager: CLLocationManagerDelegate {
         authorizationStatus = manager.authorizationStatus
         
         if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
-            manager.requestLocation()
+            manager.startUpdatingLocation()
         }
     }
     

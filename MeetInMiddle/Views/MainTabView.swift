@@ -27,17 +27,17 @@ struct MainTabView: View {
                 }
                 .tag(1)
             
-            // Find Activities Tab
-            ActivityFinderView(appViewModel: appViewModel)
+            // Flight Finder Tab
+            FlightFinderView(appViewModel: appViewModel)
                 .tabItem {
-                    Label("Activities", systemImage: "magnifyingglass")
+                    Label("Flights", systemImage: "airplane.departure")
                 }
                 .tag(2)
             
-            // Profile Tab
+            // Settings Tab
             ProfileView(appViewModel: appViewModel)
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label("Settings", systemImage: "gearshape.fill")
                 }
                 .tag(3)
         }

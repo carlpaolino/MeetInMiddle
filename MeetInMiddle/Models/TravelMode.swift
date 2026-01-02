@@ -10,20 +10,23 @@ import SwiftUI
 
 enum TravelMode: String, Codable, CaseIterable {
     case drive = "Drive"
-    case flight = "Flight"
+    case walk = "Walk"
     case bike = "Bike"
-    case bus = "Bus"
+    case bus = "Transit"
+    case flight = "Flight"
     
     var iconName: String {
         switch self {
         case .drive:
             return "car.fill"
-        case .flight:
-            return "airplane"
+        case .walk:
+            return "figure.walk"
         case .bike:
             return "bicycle"
         case .bus:
             return "bus.fill"
+        case .flight:
+            return "airplane"
         }
     }
     
@@ -31,12 +34,14 @@ enum TravelMode: String, Codable, CaseIterable {
         switch self {
         case .drive:
             return .blue
-        case .flight:
-            return .purple
-        case .bike:
+        case .walk:
             return .green
+        case .bike:
+            return .mint
         case .bus:
             return .orange
+        case .flight:
+            return .purple
         }
     }
 }
